@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>천이봤 게시글 전체 열기</title>
+    <meta
+      name="description"
+      content="천이봤 표에 모인 네이버 카페 게시글을 PC 브라우저 탭으로 한 번에 엽니다."
+    />
+    <link rel="stylesheet" href="./assets/styles.css" />
+    <script src="./assets/app.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <section class="panel" aria-live="polite">
+        <header class="header">
+          <p class="eyebrow">천이봤 모아보기</p>
+          <h1>게시글 전체 열기</h1>
+          <p class="description">
+            연결된 네이버 카페 게시글을 PC 브라우저의 새 탭으로 엽니다.
+          </p>
+        </header>
+
+        <div id="status" class="status" hidden>
+          <span class="status-mark" aria-hidden="true">✓</span>
+          <div>
+            <strong id="status-title">게시글 열기를 요청했습니다.</strong>
+            <span id="status-detail">
+              탭이 보이지 않으면 이 사이트의 팝업 허용 상태를 확인해 주세요.
+            </span>
+          </div>
+        </div>
+
+        <div id="actions" class="actions" hidden>
+          <button id="retry" class="retry" type="button">전체 다시 열기</button>
+          <span id="count" class="count"></span>
+        </div>
+
+        <ol id="links" class="links" hidden></ol>
+
+        <p id="empty" class="empty" hidden>
+          열 게시글 정보가 없습니다. 카페 글에 있는 전체 열기 링크로 다시
+          접속해 주세요.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
