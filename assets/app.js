@@ -2,6 +2,10 @@
   "use strict";
 
   const MAX_ARTICLES = 100;
+  const IMMEDIATE_ARTICLES = 4;
+  const ARTICLES_PER_BATCH = 4;
+  const BATCH_INTERVAL_MS = 1000;
+  let opening = false;
 
   function readArticleIds() {
     const params = new URLSearchParams(window.location.hash.slice(1));
@@ -27,14 +31,91 @@
     }, 200);
   }
 
+  function openTab(url, name) {
+    const tab = window.open(url, name);
+    if (!tab) return null;
+
+    try {
+      tab.opener = null;
+    } catch {}
+    return tab;
+  }
+
   function openAll(articleIds) {
-    for (const articleId of articleIds) {
-      window.open(articleUrl(articleId), "_blank", "noopener,noreferrer");
+    if (opening) return;
+    opening = true;
+
+    const statusTitle = document.querySelector("#status-title");
+    const runId = Date.now();
+    let openedCount = 0;
+    let firstTab = null;
+
+    const immediateIds = articleIds.slice(0, IMMEDIATE_ARTICLES);
+    const deferredIds = articleIds.slice(IMMEDIATE_ARTICLES);
+
+    immediateIds.forEach((articleId, index) => {
+      const tab = openTab(articleUrl(articleId), `chun-i-bwat-${runId}-${index}`);
+      if (tab) {
+        openedCount += 1;
+        firstTab ||= tab;
+      }
+    });
+
+    const reservedTabs = deferredIds.map((articleId, index) => {
+      const tab = openTab("about:blank", `chun-i-bwat-${runId}-${index + IMMEDIATE_ARTICLES}`);
+      if (tab) openedCount += 1;
+      return { articleId, tab };
+    });
+
+    try {
+      firstTab?.focus();
+    } catch {}
+
+    const blockedCount = articleIds.length - openedCount;
+    if (blockedCount > 0) {
+      statusTitle.textContent =
+        `${openedCount}개 탭을 열었습니다. 차단된 ${blockedCount}개는 팝업 허용 후 다시 시도해 주세요.`;
+    } else if (reservedTabs.length > 0) {
+      statusTitle.textContent =
+        `앞의 ${immediateIds.length}개를 열었습니다. 나머지는 1초마다 ${ARTICLES_PER_BATCH}개씩 불러옵니다.`;
+    } else {
+      statusTitle.textContent = `${openedCount}개 게시글을 열었습니다.`;
     }
 
-    document.querySelector("#status-title").textContent =
-      `${articleIds.length}개 게시글 열기를 요청했습니다.`;
-    closeLauncherTab();
+    const batches = [];
+    for (let index = 0; index < reservedTabs.length; index += ARTICLES_PER_BATCH) {
+      batches.push(reservedTabs.slice(index, index + ARTICLES_PER_BATCH));
+    }
+
+    if (batches.length === 0) {
+      opening = false;
+      if (blockedCount === 0) window.setTimeout(closeLauncherTab, 500);
+      return;
+    }
+
+    batches.forEach((batch, batchIndex) => {
+      window.setTimeout(() => {
+        for (const { articleId, tab } of batch) {
+          if (!tab || tab.closed) continue;
+          try {
+            tab.location.replace(articleUrl(articleId));
+          } catch {
+            tab.location.href = articleUrl(articleId);
+          }
+        }
+
+        const loadedCount = Math.min(
+          articleIds.length,
+          IMMEDIATE_ARTICLES + (batchIndex + 1) * ARTICLES_PER_BATCH,
+        );
+        statusTitle.textContent = `${loadedCount}/${articleIds.length}개 게시글을 불러왔습니다.`;
+
+        if (batchIndex === batches.length - 1) {
+          opening = false;
+          if (blockedCount === 0) window.setTimeout(closeLauncherTab, 800);
+        }
+      }, (batchIndex + 1) * BATCH_INTERVAL_MS);
+    });
   }
 
   function render(articleIds) {
