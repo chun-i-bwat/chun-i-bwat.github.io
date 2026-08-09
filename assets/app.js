@@ -18,6 +18,16 @@
     return `https://cafe.naver.com/cyhistory/${articleId}`;
   }
 
+  function updateProgress(completed, total) {
+    const progress = document.querySelector("#progress");
+    const progressBar = document.querySelector("#progress-bar");
+    const percent = total > 0
+      ? Math.min(100, Math.round((completed / total) * 100))
+      : 0;
+    progress.setAttribute("aria-valuenow", String(percent));
+    progressBar.style.width = `${percent}%`;
+  }
+
   function closeLauncherTab() {
     document.documentElement.style.display = "none";
     window.close();
@@ -44,8 +54,11 @@
     opening = true;
 
     const statusTitle = document.querySelector("#status-title");
+    const retryButton = document.querySelector("#retry");
+    retryButton.disabled = true;
     const runId = Date.now();
     let openedCount = 0;
+    let navigatedCount = 0;
     let firstTab = null;
 
     const immediateIds = articleIds.slice(0, IMMEDIATE_ARTICLES);
@@ -55,6 +68,7 @@
       const tab = openTab(articleUrl(articleId), `chun-i-bwat-${runId}-${index}`);
       if (tab) {
         openedCount += 1;
+        navigatedCount += 1;
         firstTab ||= tab;
       }
     });
@@ -70,6 +84,7 @@
     } catch {}
 
     const blockedCount = articleIds.length - openedCount;
+    updateProgress(navigatedCount, articleIds.length);
     if (blockedCount > 0) {
       statusTitle.textContent =
         `${openedCount}개 탭을 열었습니다. 차단된 ${blockedCount}개는 팝업 허용 후 다시 시도해 주세요.`;
@@ -87,6 +102,7 @@
 
     if (batches.length === 0) {
       opening = false;
+      retryButton.disabled = false;
       if (blockedCount === 0) window.setTimeout(closeLauncherTab, 500);
       return;
     }
@@ -100,16 +116,15 @@
           } catch {
             tab.location.href = articleUrl(articleId);
           }
+          navigatedCount += 1;
         }
 
-        const loadedCount = Math.min(
-          articleIds.length,
-          IMMEDIATE_ARTICLES + (batchIndex + 1) * ARTICLES_PER_BATCH,
-        );
-        statusTitle.textContent = `${loadedCount}/${articleIds.length}개 게시글을 불러왔습니다.`;
+        updateProgress(navigatedCount, articleIds.length);
+        statusTitle.textContent = `${navigatedCount}/${articleIds.length}개 게시글을 불러왔습니다.`;
 
         if (batchIndex === batches.length - 1) {
           opening = false;
+          retryButton.disabled = false;
           if (blockedCount === 0) window.setTimeout(closeLauncherTab, 800);
         }
       }, (batchIndex + 1) * BATCH_INTERVAL_MS);

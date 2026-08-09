@@ -10,12 +10,28 @@
       name="description"
       content="천이봤 표에 모인 네이버 카페 게시글을 PC 브라우저 탭으로 한 번에 엽니다."
     />
+    <link
+      rel="preload"
+      as="image"
+      href="./assets/chunyang-character-v1.png"
+      type="image/png"
+    />
     <link rel="stylesheet" href="./assets/styles.css" />
     <script src="./assets/app.js" defer></script>
   </head>
   <body>
     <main class="page">
       <section class="panel" aria-live="polite">
+        <div class="visual">
+          <img
+            src="./assets/chunyang-character-v1.png"
+            alt="천양 캐릭터"
+            width="720"
+            height="720"
+            decoding="async"
+          />
+        </div>
+
         <header class="header">
           <p class="eyebrow">천이봤 모아보기</p>
           <h1>게시글 전체 열기</h1>
@@ -25,12 +41,23 @@
         </header>
 
         <div id="status" class="status" hidden>
-          <span class="status-mark" aria-hidden="true">✓</span>
-          <div>
+          <span class="status-mark" aria-hidden="true"><i></i></span>
+          <div class="status-copy">
             <strong id="status-title">게시글 열기를 요청했습니다.</strong>
             <span id="status-detail">
               탭이 보이지 않으면 이 사이트의 팝업 허용 상태를 확인해 주세요.
             </span>
+            <div
+              id="progress"
+              class="progress"
+              role="progressbar"
+              aria-label="게시글 열기 진행률"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow="0"
+            >
+              <span id="progress-bar"></span>
+            </div>
           </div>
         </div>
 
