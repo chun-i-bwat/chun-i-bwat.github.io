@@ -1,12 +1,12 @@
 :root {
-  --background: #eef2f0;
-  --surface: #ffffff;
-  --foreground: #17201c;
-  --muted: #5c6761;
-  --line: #d9dfdc;
-  --accent: #03a65a;
-  --accent-hover: #028c4c;
-  --warning: #a3472d;
+  --background: #e8fbf8;
+  --surface: #fbffff;
+  --foreground: #153b3b;
+  --muted: #477171;
+  --line: #95e8dd;
+  --accent: #64f4ff;
+  --accent-hover: #35dce9;
+  --warning: #087f89;
 }
 
 * {
@@ -43,7 +43,7 @@ a {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
-  box-shadow: 0 16px 42px rgb(23 32 28 / 8%);
+  box-shadow: 0 16px 42px rgb(25 127 126 / 14%);
 }
 
 .visual {
@@ -105,7 +105,7 @@ h1 {
   height: 40px;
   place-items: center;
   border-radius: 50%;
-  background: #e5f7ed;
+  background: #ddfcf8;
 }
 
 .status-mark i {
@@ -139,14 +139,14 @@ h1 {
   margin-top: 12px;
   overflow: hidden;
   border-radius: 3px;
-  background: #e5e9e7;
+  background: #d7faf5;
 }
 
 .progress span {
   display: block;
   width: 0;
   height: 100%;
-  background: var(--accent);
+  background: #ffeb5a;
   transition: width 280ms ease;
 }
 
@@ -166,7 +166,7 @@ h1 {
   border: 1px solid var(--accent);
   border-radius: 6px;
   background: var(--accent);
-  color: #ffffff;
+  color: #123536;
   cursor: pointer;
   font-weight: 700;
 }
@@ -206,7 +206,7 @@ h1 {
 }
 
 .links a {
-  color: #1769aa;
+  color: #087f89;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
 }
