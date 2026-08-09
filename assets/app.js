@@ -2,6 +2,10 @@
   "use strict";
 
   const IMMEDIATE_ARTICLES = 4;
+  const FAST_OPEN_LIMIT = 8;
+  const MEDIUM_OPEN_LIMIT = 20;
+  const FAST_CLOSE_DELAY_MS = 300;
+  const MEDIUM_BATCH_INTERVAL_MS = 600;
   const ARTICLES_PER_BATCH = 4;
   const BATCH_INTERVAL_MS = 1000;
   let opening = false;
@@ -61,8 +65,14 @@
     let navigatedCount = 0;
     let firstTab = null;
 
-    const immediateIds = articleIds.slice(0, IMMEDIATE_ARTICLES);
-    const deferredIds = articleIds.slice(IMMEDIATE_ARTICLES);
+    const fastMode = articleIds.length <= FAST_OPEN_LIMIT;
+    const mediumMode = !fastMode && articleIds.length <= MEDIUM_OPEN_LIMIT;
+    const batchIntervalMs = mediumMode
+      ? MEDIUM_BATCH_INTERVAL_MS
+      : BATCH_INTERVAL_MS;
+    const immediateCount = fastMode ? articleIds.length : IMMEDIATE_ARTICLES;
+    const immediateIds = articleIds.slice(0, immediateCount);
+    const deferredIds = articleIds.slice(immediateCount);
 
     immediateIds.forEach((articleId, index) => {
       const tab = openTab(articleUrl(articleId), `chun-i-bwat-${runId}-${index}`);
@@ -89,8 +99,9 @@
       statusTitle.textContent =
         `${openedCount}개 탭을 열었습니다. 차단된 ${blockedCount}개는 팝업 허용 후 다시 시도해 주세요.`;
     } else if (reservedTabs.length > 0) {
+      const intervalText = mediumMode ? "빠른 간격으로" : "1초마다";
       statusTitle.textContent =
-        `앞의 ${immediateIds.length}개를 열었습니다. 나머지는 1초마다 ${ARTICLES_PER_BATCH}개씩 불러옵니다.`;
+        `앞의 ${immediateIds.length}개를 열었습니다. 나머지는 ${intervalText} ${ARTICLES_PER_BATCH}개씩 불러옵니다.`;
     } else {
       statusTitle.textContent = `${openedCount}개 게시글을 열었습니다.`;
     }
@@ -103,7 +114,10 @@
     if (batches.length === 0) {
       opening = false;
       retryButton.disabled = false;
-      if (blockedCount === 0) window.setTimeout(closeLauncherTab, 500);
+      if (blockedCount === 0) {
+        const closeDelay = fastMode ? FAST_CLOSE_DELAY_MS : 500;
+        window.setTimeout(closeLauncherTab, closeDelay);
+      }
       return;
     }
 
@@ -125,9 +139,12 @@
         if (batchIndex === batches.length - 1) {
           opening = false;
           retryButton.disabled = false;
-          if (blockedCount === 0) window.setTimeout(closeLauncherTab, 800);
+          if (blockedCount === 0) {
+            const closeDelay = mediumMode ? 500 : 800;
+            window.setTimeout(closeLauncherTab, closeDelay);
+          }
         }
-      }, (batchIndex + 1) * BATCH_INTERVAL_MS);
+      }, (batchIndex + 1) * batchIntervalMs);
     });
   }
 
