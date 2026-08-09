@@ -45,10 +45,10 @@ a {
 .panel {
   width: min(680px, 100%);
   overflow: hidden;
-  border: 1px solid var(--line);
+  border: 1px solid #64f4ff;
   border-radius: 8px;
   background: var(--surface);
-  box-shadow: 0 16px 42px rgb(25 127 126 / 14%);
+  box-shadow: 0 16px 42px rgb(100 244 255 / 30%);
 }
 
 .visual {
