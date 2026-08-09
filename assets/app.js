@@ -1,7 +1,6 @@
 (() => {
   "use strict";
 
-  const MAX_ARTICLES = 100;
   const IMMEDIATE_ARTICLES = 4;
   const ARTICLES_PER_BATCH = 4;
   const BATCH_INTERVAL_MS = 1000;
@@ -12,8 +11,7 @@
     const rawIds = params.get("ids") || "";
 
     return [...new Set(rawIds.split(",").map((id) => id.trim()))]
-      .filter((id) => /^\d{5,9}$/.test(id))
-      .slice(0, MAX_ARTICLES);
+      .filter((id) => /^\d{5,9}$/.test(id));
   }
 
   function articleUrl(articleId) {
